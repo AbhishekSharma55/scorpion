@@ -1,0 +1,83 @@
+services:
+  server:
+    image: postgrest/postgrest
+    ports:
+      - "5000:3000"
+    environment:
+      PGRST_DB_URI: postgres://app_user:password@db:5432/app_db
+      PGRST_DB_ANON_ROLE: web_anon
+      PGRST_DB_SCHEMAS: api
+      PGRST_OPENAPI_SERVER_PROXY_URI: http://127.0.0.1:5000
+      PGRST_LOG_LEVEL: info
+    depends_on:
+      - db
+    networks:
+      - dev-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - NODE_ENV=development
+    depends_on:
+      - server
+    networks:
+      - dev-network
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata_dev:/var/lib/postgresql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app_user -d app_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dev-network
+
+  swagger:
+    image: swaggerapi/swagger-ui
+    ports:
+      - "8080:8080"
+    environment:
+      API_URL: http://localhost:5000/
+    networks:
+      - dev-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
+    networks:
+      - dev-network
+
+volumes:
+  pgdata_dev:
+  pgadmin_data:
+
+networks:
+  dev-network:
+    driver: bridge
