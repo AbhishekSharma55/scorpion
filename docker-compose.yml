@@ -19,15 +19,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3001:3001"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:5000
-      - WATCHPACK_POLLING=true
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - server
+      - redis
     networks:
       - app-network
 
@@ -40,8 +37,8 @@ services:
       POSTGRES_USER: app_user
       POSTGRES_PASSWORD: password
     volumes:
-      - pgdata:/var/lib/postgresql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U app_user -d app_db" ]
       interval: 5s
@@ -78,20 +75,35 @@ services:
       context: ./maintainance
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
-    volumes:
-      - ./maintainance:/app
-      - /app/node_modules
+      - "3002:3000"  # ✅ Fixed port
     environment:
       - REACT_APP_API_URL=http://localhost:5000
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - server
+      - redis
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - app-network
 
 volumes:
   pgdata:
   pgadmin_data:
+  redis_data:
 
 networks:
   app-network:
