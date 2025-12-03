@@ -1,6 +1,6 @@
 'use client';
 
-import { ExternalLink, Database, Zap, Palette, FileText } from 'lucide-react';
+import { ExternalLink, Database, Zap, Palette, FileText, Wrench } from 'lucide-react';
 
 interface Service {
   name: string;
@@ -56,6 +56,15 @@ const services: Service[] = [
     port: 8080,
     icon: <FileText className="w-6 h-6" />,
     color: 'bg-orange-500',
+    status: 'running',
+  },
+  {
+    name: 'Maintainance',
+    description: 'Maintainance dashboard',
+    url: 'http://localhost:3000',
+    port: 3000,
+    icon: <Wrench className="w-6 h-6" />,
+    color: 'bg-purple-500',
     status: 'running',
   },
 ];

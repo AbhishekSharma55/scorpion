@@ -1,16 +1,12 @@
-FROM node:22-alpine
-
+FROM node:22-alpine AS builder
 WORKDIR /app
-
-# Install dependencies
-COPY package.json package-lock.json ./
-RUN npm ci
-
-# Copy app files
+COPY package*.json ./
+RUN npm ci --production
 COPY . .
+RUN npm run build
 
-# Expose port (use 3001 since PostgREST uses 3000)
-EXPOSE 3001
-
-# Run dev server
-CMD ["npm", "run", "dev", "--", "-p", "3001"]
+FROM node:22-alpine
+WORKDIR /app
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+CMD ["npm", "start"]

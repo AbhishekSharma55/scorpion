@@ -25,6 +25,7 @@ services:
       - /app/.next
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - WATCHPACK_POLLING=true
     depends_on:
       - server
     networks:
@@ -69,6 +70,22 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - db
+    networks:
+      - app-network
+
+  maintainance:
+    build:
+      context: ./maintainance
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./maintainance:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+    depends_on:
+      - server
     networks:
       - app-network
 
