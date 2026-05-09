@@ -38,7 +38,7 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U app_user -d app_db" ]
       interval: 5s
@@ -75,7 +75,7 @@ services:
       context: ./maintainance
       dockerfile: Dockerfile
     ports:
-      - "3002:3000"  # ✅ Fixed port
+      - "3002:3000"
     environment:
       - REACT_APP_API_URL=http://localhost:5000
       - REDIS_URL=redis://redis:6379

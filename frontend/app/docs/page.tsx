@@ -59,9 +59,9 @@ const services: Service[] = [
     status: 'running',
   },
   {
-    name: 'Maintainance',
-    description: 'Maintainance dashboard',
-    url: 'http://localhost:3000',
+    name: 'Maintenance Dashboard',
+    description: 'React admin dashboard for backend operations',
+    url: 'http://localhost:3002',
     port: 3002,
     icon: <Wrench className="w-6 h-6" />,
     color: 'bg-purple-500',
@@ -69,8 +69,8 @@ const services: Service[] = [
   },
   {
     name: 'Redis',
-    description: 'Redis database',
-    url: 'http://localhost:6379',
+    description: 'In-memory cache (LRU, AOF persistence)',
+    url: 'redis://localhost:6379',
     port: 6379,
     icon: <Zap className="w-6 h-6" />,
     color: 'bg-red-500',
@@ -84,7 +84,13 @@ export default function DocsPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">Scorpion Services</h1>
+          <a
+            href="/"
+            className="text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            ← Back home
+          </a>
+          <h1 className="text-4xl font-bold text-white mt-3 mb-2">Scorpion Services</h1>
           <p className="text-gray-400 text-lg">Local development environment dashboard</p>
         </div>
 
